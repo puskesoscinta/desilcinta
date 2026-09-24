@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuesioner Digital DTSEN - Citamiang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Print Styles for Summary */
+        @media print {
+            @page {
+                size: 215.9mm 330mm; /* Ukuran kertas F4 / Folio (8.5 x 13 inci) */
+                margin: 10mm; /* Margin kertas cetak */
+            }
+            body { background-color: white; padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .shadow, .rounded-xl { box-shadow: none !important; border-radius: 0 !important; }
+            .print-container { width: 100%; max-width: 100%; margin: 0; padding: 0; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #000; padding: 4px; font-size: 11px; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+<div class="max-w-5xl mx-auto p-4 md:p-6 print-container" id="appContainer">
+    
+    <!-- Header -->
+    <div class="text-center bg-white p-6 rounded-xl shadow-sm mb-6 border-t-4 border-blue-600 no-print">
+        <h3 class="text-lg font-bold bg-blue-50 text-blue-800 py-2 rounded">KUESIONER USULAN DAN PEMBAHARUAN DATA KELUARGA DTSEN</h3>
+    </div>
+
+    <!-- Main Form -->
+    <form id="dtsenForm" class="no-print">
+        
+        <!-- Bagian A -->
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+            <h4 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700 border-b pb-2">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">A</span> Keterangan Individu & Anggota Keluarga
+            </h4>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Kepala Keluarga</label>
+                    <input type="text" name="nama_kk" class="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">No. Kartu Keluarga (KK)</label>
+                    <input type="number" name="no_kk" class="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jml Anggota Keluarga (Orang)</label>
+                    <input type="number" name="jml_anggota" class="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label>
+                    <input type="text" name="alamat" class="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">RT</label>
+                        <input type="number" name="rt" class="w-full border border-gray-300 rounded-md p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">RW</label>
+                        <input type="number" name="rw" class="w-full border border-gray-300 rounded-md p-2" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
+                    <input type="text" name="kecamatan" value="Citamiang" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50" readonly>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kelurahan</label>
+                    <input type="text" name="kelurahan" value="Citamiang" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50" readonly>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">No. HP / WhatsApp</label>
+                    <input type="tel" name="no_hp" class="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+            </div>
+
+            <div class="mb-2 flex justify-between items-end">
+                <label class="block text-sm font-bold text-gray-800">Daftar Anggota Keluarga (Sesuai KK)</label>
+                <button type="button" onclick="addFamilyMember()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm shadow-sm transition"><i class="fas fa-plus mr-1"></i> Tambah Anggota</button>
+            </div>
+            <div class="overflow-x-auto border rounded-lg">
+                <table class="w-full text-sm text-left whitespace-nowrap min-w-[1000px]" id="familyTable">
+                    <thead class="bg-gray-100 text-gray-700 border-b">
+                        <tr>
+                            <th class="p-2 w-10 text-center">No</th>
+                            <th class="p-2">Nama Anggota Keluarga</th>
+                            <th class="p-2">NIK Sesuai KK?</th>
+                            <th class="p-2">Hubungan Keluarga</th>
+                            <th class="p-2 text-blue-700">Partisipasi Sekolah</th>
+                            <th class="p-2">Ijazah Tertinggi</th>
+                            <th class="p-2">Bekerja Seminggu Terakhir?</th>
+                            <th class="p-2">Pendapatan / Bulan (Rp)</th>
+                            <th class="p-2">Kesehatan/Hamil/Disabilitas</th>
+                            <th class="p-2 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="familyTbody">
+                        <!-- Baris akan ditambahkan via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bagian B -->
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+            <h4 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700 border-b pb-2">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">B</span> Kepemilikan Usaha Keluarga
+            </h4>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Apakah Memiliki Usaha?</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center"><input type="radio" name="punya_usaha" value="Ya" class="mr-2" onchange="toggleUsaha(true)" required> Ya</label>
+                    <label class="flex items-center"><input type="radio" name="punya_usaha" value="Tidak" class="mr-2" onchange="toggleUsaha(false)"> Tidak</label>
+                </div>
+            </div>
+
+            <div id="usahaDetails" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded border">
+                <div>
+                    <label class="block text-sm text-gray-700 mb-1">Jumlah Usaha Dimiliki</label>
+                    <input type="number" name="jml_usaha" class="w-full border rounded p-2">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-700 mb-1">Lapangan / Jenis Usaha</label>
+                    <input type="text" name="jenis_usaha" class="w-full border rounded p-2">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-700 mb-1">Omset Usaha Total / Bulan (Rp)</label>
+                    <input type="number" name="omset_usaha" class="w-full border rounded p-2">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs text-gray-700 mb-1">Jml Pekerja Dibayar</label>
+                        <input type="number" name="pekerja_dibayar" class="w-full border rounded p-2">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-700 mb-1">Pekerja Tidak Dibayar</label>
+                        <input type="number" name="pekerja_tdk_dibayar" class="w-full border rounded p-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian C -->
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+            <h4 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700 border-b pb-2">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">C</span> Keterangan Perumahan & Lingkungan Tempat Tinggal
+            </h4>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <!-- 1 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">1. Jenis Bangunan Tempat Tinggal</label>
+                    <select name="c_jenis_bangunan" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Rumah Tunggal">Rumah Tunggal</option>
+                        <option value="Apartemen/Rumah Susun">Apartemen / Rumah Susun</option>
+                        <option value="Rumah Deret">Rumah Deret</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <!-- 2 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">2. Keluarga lain tinggal di rumah ini?</label>
+                    <div class="flex gap-2 items-center">
+                        <select name="c_keluarga_lain" class="w-1/2 border rounded p-2" onchange="toggleKeluargaLain(this.value)" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Ya">Ya</option>
+                            <option value="Tidak">Tidak</option>
+                        </select>
+                        <input type="number" name="c_jml_jiwa_lain" id="inputJmlJiwa" placeholder="Jml Jiwa..." class="w-1/2 border rounded p-2 hidden">
+                    </div>
+                </div>
+                <!-- 3 & 4 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">3. Status Kepemilikan Bangunan</label>
+                    <select name="c_status_milik" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Milik Sendiri">Milik Sendiri</option>
+                        <option value="Kontrak/Sewa">Kontrak/Sewa</option>
+                        <option value="Bebas Sewa">Bebas Sewa</option>
+                        <option value="Dinas">Dinas</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">4. Luas Lantai (m²)</label>
+                        <input type="number" name="c_luas_lantai" class="w-full border rounded p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Biaya Sewa/Bulan (Rp)</label>
+                        <input type="number" name="c_biaya_sewa" placeholder="Jika sewa" class="w-full border rounded p-2">
+                    </div>
+                </div>
+                <!-- 5 & 6 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">5. Jenis Lantai Terluas</label>
+                    <select name="c_jenis_lantai" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Granit/Marmer">Granit/Marmer</option>
+                        <option value="Keramik">Keramik</option>
+                        <option value="Parket/Vinil/Permadani">Parket/Vinil</option>
+                        <option value="Kayu/Papan">Kayu/Papan</option>
+                        <option value="Semen/Bata Merah">Semen/Bata</option>
+                        <option value="Bambu">Bambu</option>
+                        <option value="Tanah">Tanah</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">6. Kondisi Lantai Rumah</label>
+                    <select name="c_kondisi_lantai" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak Ringan">Rusak Ringan</option>
+                        <option value="Rusak Sedang">Rusak Sedang</option>
+                        <option value="Rusak Berat">Rusak Berat</option>
+                    </select>
+                </div>
+                <!-- 7 & 8 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">7. Jenis Dinding Terluas</label>
+                    <select name="c_jenis_dinding" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Tembok">Tembok</option>
+                        <option value="Plesteran Anyaman">Plesteran Anyaman Bambu</option>
+                        <option value="Kayu/Papan/Gypsum">Kayu/Papan/Gypsum</option>
+                        <option value="Anyaman Bambu">Anyaman Bambu</option>
+                        <option value="Batang Kayu/Bambu">Batang Kayu/Bambu</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">8. Kondisi Dinding</label>
+                    <select name="c_kondisi_dinding" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak Ringan">Rusak Ringan</option>
+                        <option value="Rusak Sedang">Rusak Sedang</option>
+                        <option value="Rusak Berat">Rusak Berat</option>
+                    </select>
+                </div>
+                <!-- 9 & 10 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">9. Jenis Atap Terluas</label>
+                    <select name="c_jenis_atap" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Beton">Beton</option>
+                        <option value="Genteng">Genteng</option>
+                        <option value="Seng">Seng</option>
+                        <option value="Asbes">Asbes</option>
+                        <option value="Bambu/Sirap">Bambu/Sirap</option>
+                        <option value="Jerami/Daun">Jerami/Daun</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">10. Kondisi Atap Rumah</label>
+                    <select name="c_kondisi_atap" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak Ringan">Rusak Ringan</option>
+                        <option value="Rusak Sedang">Rusak Sedang</option>
+                        <option value="Rusak Berat">Rusak Berat</option>
+                    </select>
+                </div>
+                <!-- 11 & 12 -->
+                <div class="col-span-1 md:col-span-2 bg-blue-50 p-3 rounded grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">11. Fasilitas BAB & Kloset</label>
+                        <select name="c_fasilitas_bab" class="w-full border rounded p-2 mb-2" required>
+                            <option value="">-- Kepemilikan --</option>
+                            <option value="Sendiri">Sendiri</option>
+                            <option value="Bersama">Bersama</option>
+                            <option value="MCK Umum">MCK Umum</option>
+                            <option value="Tidak Ada">Tidak Ada</option>
+                        </select>
+                        <select name="c_jenis_kloset" class="w-full border rounded p-2">
+                            <option value="">-- Jenis Kloset --</option>
+                            <option value="Leher Angsa">Leher Angsa</option>
+                            <option value="Plengsengan">Plengsengan</option>
+                            <option value="Cemplung/Cubluk">Cemplung/Cubluk</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">12. Pembuangan Akhir Tinja</label>
+                        <select name="c_buang_tinja" class="w-full border rounded p-2" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Tangki Septik">Tangki Septik</option>
+                            <option value="SPAL/IPAL">SPAL/IPAL</option>
+                            <option value="Kolam/Sungai/Laut">Kolam/Sungai/Laut</option>
+                            <option value="Lubang Tanah">Lubang Tanah</option>
+                            <option value="Kebun/Lapang">Kebun/Lapang</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- 13 & 14 & 15 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">13. Bahan Bakar Utama Memasak</label>
+                    <select name="c_bb_masak" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Listrik">Listrik</option>
+                        <option value="LPG 12kg/5.5kg">LPG 12kg/5.5kg</option>
+                        <option value="LPG 3kg">LPG 3kg</option>
+                        <option value="Minyak Tanah">Minyak Tanah</option>
+                        <option value="Kayu Bakar/Arang">Kayu Bakar/Arang</option>
+                        <option value="Gas Kota/PGN">Gas Kota/PGN</option>
+                        <option value="Tidak Memasak">Tidak Memasak</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">14. Sumber Air Minum Utama</label>
+                    <select name="c_sumber_air" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="Air Kemasan/Isi Ulang">Air Kemasan/Isi Ulang</option>
+                        <option value="Ledeng/PDAM">Ledeng/PDAM</option>
+                        <option value="Sumur Bor/Pompa">Sumur Bor/Pompa</option>
+                        <option value="Sumur Terlindung">Sumur Terlindung</option>
+                        <option value="Mata Air Terlindung">Mata Air Terlindung</option>
+                        <option value="Air Hujan/Sungai">Air Hujan/Sungai</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">15. Jarak ke Penampungan Limbah</label>
+                    <select name="c_jarak_limbah" class="w-full border rounded p-2" required>
+                        <option value="">-- Pilih --</option>
+                        <option value="< 10 Meter">< 10 Meter</option>
+                        <option value="≥ 10 Meter">≥ 10 Meter</option>
+                        <option value="Tidak Tahu">Tidak Tahu</option>
+                    </select>
+                </div>
+                
+                <!-- 16 -->
+                <div class="col-span-1 md:col-span-2 bg-yellow-50 p-4 rounded border border-yellow-200">
+                    <label class="block text-sm font-bold text-gray-800 mb-2">16. Sumber Penerangan Utama & Listrik</label>
+                    <div class="flex gap-4 mb-3 flex-wrap">
+                        <label><input type="radio" name="c_sumber_listrik" value="PLN dengan meteran" onchange="toggleListrik(true)" required> PLN dng meteran</label>
+                        <label><input type="radio" name="c_sumber_listrik" value="PLN Tanpa Meteran" onchange="toggleListrik(false)"> PLN Tanpa Meteran</label>
+                        <label><input type="radio" name="c_sumber_listrik" value="Non-PLN" onchange="toggleListrik(false)"> Non-PLN</label>
+                        <label><input type="radio" name="c_sumber_listrik" value="Bukan Listrik" onchange="toggleListrik(false)"> Bukan Listrik</label>
+                    </div>
+                    <div id="listrikDetails" class="hidden grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+                        <div><input type="text" name="c_listrik_pelanggan" placeholder="Nomor pelanggan" class="w-full border rounded p-2 text-sm"></div>
+                        <div><input type="text" name="c_listrik_meteran" placeholder="Nomor meteran" class="w-full border rounded p-2 text-sm"></div>
+                        <div><input type="text" name="c_listrik_daya" placeholder="Daya Listrik (VA)" class="w-full border rounded p-2 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian D -->
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+            <h4 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700 border-b pb-2">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">D</span> Rata-Rata Pengeluaran & Pendapatan Keluarga
+            </h4>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm">1. Pengeluaran Listrik / Bulan</span>
+                    <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pengeluaran_listrik" class="border rounded p-1 w-32 text-right"></div>
+                </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm">2. Pengeluaran Pulsa Seluruh Anggota / Bulan</span>
+                    <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pengeluaran_pulsa" class="border rounded p-1 w-32 text-right"></div>
+                </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm">3. Pengeluaran Paket Internet / Bulan</span>
+                    <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pengeluaran_internet" class="border rounded p-1 w-32 text-right"></div>
+                </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm">4. Pengeluaran Makanan Seluruh Anggota / <b class="text-red-500">Minggu</b></span>
+                    <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pengeluaran_makan" class="border rounded p-1 w-32 text-right"></div>
+                </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm">5. Pengeluaran Bukan Makanan Rutin / Bulan</span>
+                    <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pengeluaran_nonmakan_bln" class="border rounded p-1 w-32 text-right"></div>
+                </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span class="text-sm">6. Pengeluaran Bukan Makanan Rutin / <b class="text-red-500">Tahun</b></span>
+                    <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pengeluaran_nonmakan_thn" class="border rounded p-1 w-32 text-right"></div>
+                </div>
+                
+                <div class="col-span-1 lg:col-span-2 mt-4">
+                    <p class="font-bold text-sm mb-2">Total Pendapatan Keluarga</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-50 p-3 rounded border">
+                            <span class="text-xs text-gray-600 block mb-1">7. Dari Pekerjaan (Gaji, Honor)</span>
+                            <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pendapatan_kerja" class="border rounded p-1 w-full text-right" placeholder="0 jika tidak ada"></div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border">
+                            <span class="text-xs text-gray-600 block mb-1">8. Dari Usaha (Warung/Online)</span>
+                            <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pendapatan_usaha" class="border rounded p-1 w-full text-right" placeholder="0 jika tidak ada"></div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border">
+                            <span class="text-xs text-gray-600 block mb-1">9. Lainnya (Pensiun/Pemberian)</span>
+                            <div class="flex items-center"><span class="mr-2 text-gray-500">Rp</span><input type="number" name="d_pendapatan_lain" class="border rounded p-1 w-full text-right" placeholder="0 jika tidak ada"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian E -->
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
+            <h4 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700 border-b pb-2">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">E</span> Kepemilikan Aset & Ternak
+            </h4>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Aset Bergerak -->
+                <div>
+                    <h5 class="font-bold text-sm bg-gray-100 p-2 mb-2">I. Aset Bergerak (Isi Jumlah Buah)</h5>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <div class="flex justify-between items-center">1. Tabung Gas ≥ 5.5kg <input type="number" name="e_gas" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">8. Lemari Es/Kulkas <input type="number" name="e_kulkas" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">2. AC <input type="number" name="e_ac" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">9. Water Heater <input type="number" name="e_water_heater" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">3. Telepon Rumah <input type="number" name="e_telp" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">10. TV Datar (≥ 30") <input type="number" name="e_tv" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">4. Emas (≥ 10g) <select name="e_emas" class="border w-16 p-1"><option value="Tidak">Tdk</option><option value="Ya">Ya</option></select></div>
+                        <div class="flex justify-between items-center">11. Laptop/Komputer <input type="number" name="e_laptop" class="border w-16 p-1 rounded" value="0"></div>
+                        
+                        <div class="flex flex-col col-span-1">
+                            <div class="flex justify-between items-center">5. Sepeda Motor <input type="number" name="e_motor" class="border w-16 p-1 rounded" value="0" onchange="toggleMotorPrice(this.value)"></div>
+                            <div id="motorPriceContainer" class="hidden flex justify-between items-center mt-1 pl-3 bg-gray-50 border rounded p-1">
+                                <span class="text-gray-500 text-[10px]">Perkiraan Harga Jual Motor: Rp</span>
+                                <input type="number" name="e_motor_harga" class="border w-20 p-1 rounded text-xs" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center">12. Sepeda <input type="number" name="e_sepeda" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">6. Mobil <input type="number" name="e_mobil" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">13. Perahu <input type="number" name="e_perahu" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">7. Kapal Motor <input type="number" name="e_kapal" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">14. Smartphone <input type="number" name="e_hp" class="border w-16 p-1 rounded" value="0"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h5 class="font-bold text-sm bg-gray-100 p-2 mb-2">II. Aset Tidak Bergerak</h5>
+                    <div class="text-sm space-y-2 mb-4">
+                        <div class="flex justify-between items-center">
+                            1. Luas sawah/kebun diusahakan sendiri (Unit/M2)
+                            <div class="flex gap-2"><select name="e_punya_sawah" class="border p-1"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select> <input type="text" name="e_luas_sawah" class="border w-20 p-1 rounded" placeholder="Luas"></div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            2. Rumah/Bangunan di tempat lain
+                            <div class="flex gap-2"><select name="e_punya_rumahlain" class="border p-1"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select> <input type="text" name="e_jml_rumahlain" class="border w-20 p-1 rounded" placeholder="Jumlah"></div>
+                        </div>
+                    </div>
+
+                    <h5 class="font-bold text-sm bg-gray-100 p-2 mb-2">III. Jumlah Ternak (Ekor)</h5>
+                    <div class="grid grid-cols-2 gap-2 text-sm mb-4">
+                        <div class="flex justify-between items-center">1. Sapi <input type="number" name="t_sapi" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">4. Kerbau <input type="number" name="t_kerbau" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">2. Kuda <input type="number" name="t_kuda" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">5. Kambing/Domba <input type="number" name="t_kambing" class="border w-16 p-1 rounded" value="0"></div>
+                        <div class="flex justify-between items-center">3. Babi <input type="number" name="t_babi" class="border w-16 p-1 rounded" value="0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pernyataan -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+            <h4 class="font-bold text-red-600 mb-2">PERNYATAAN:</h4>
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" name="pernyataan" class="mt-1 w-5 h-5 text-blue-600" required>
+                <span class="text-sm text-gray-700 leading-relaxed text-justify">
+                    Saya menyatakan bahwa seluruh isian data di atas adalah benar sesuai dengan kondisi sebenarnya. Apabila di kemudian hari ditemukan/terbukti bahwa data yang diberikan tidak benar/palsu, saya bersedia bertanggung jawab penuh atas segala konsekuensi hukum yang berlaku sesuai dengan Pasal 42 Undang-Undang Nomor 13 Tahun 2011 tentang Penanganan Fakir Miskin (dipidana dengan pidana penjara paling lama 2 (dua) tahun atau denda paling banyak Rp 50.000.000,-).
+                </span>
+            </label>
+            
+            <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-end">
+                <button type="button" onclick="dtsenForm.reset()" class="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 font-medium">Reset Form</button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 rounded text-white hover:bg-blue-700 font-bold shadow-md flex items-center justify-center"><i class="fas fa-save mr-2"></i> Simpan & Lihat Ringkasan</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- View Ringkasan (Akan tampil setelah submit) -->
+    <div id="summaryView" class="hidden bg-white p-8 rounded-xl shadow-lg print-only print:p-0 print:shadow-none">
+        <div class="text-center mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold uppercase">HASIL KUISIONER DAN PEMBAHARUAN DTSEN</h1>
+        </div>
+        
+        <div id="summaryContent" class="space-y-6 text-sm">
+            <!-- Konten ringkasan digenerate via JS -->
+        </div>
+
+        <!-- Tanda Tangan Section (Khusus Print) -->
+        <div class="mt-8 text-sm text-justify print-only">
+             <h4 class="font-bold text-red-600 mb-1">PERNYATAAN:</h4>
+             <p>Saya menyatakan bahwa seluruh isian data di atas adalah benar sesuai dengan kondisi sebenarnya. Apabila di kemudian hari ditemukan/terbukti bahwa data yang diberikan tidak benar/palsu, saya bersedia bertanggung jawab penuh atas segala konsekuensi hukum yang berlaku sesuai dengan Pasal 42 Undang-Undang Nomor 13 Tahun 2011 tentang Penanganan Fakir Miskin (dipidana dengan pidana penjara paling lama 2 (dua) tahun atau denda paling banyak Rp 50.000.000,-).</p>
+        </div>
+
+        <div class="mt-8 flex justify-center gap-4 no-print border-t pt-4">
+            <button onclick="closeSummary()" class="px-4 py-2 border rounded hover:bg-gray-50"><i class="fas fa-arrow-left mr-2"></i> Edit Data Kembali</button>
+            <button onclick="sendToWhatsApp()" class="px-6 py-2 bg-green-500 text-white font-bold rounded shadow hover:bg-green-600"><i class="fab fa-whatsapp mr-2"></i> Kirim ke WhatsApp</button>
+            <button onclick="window.print()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded shadow hover:bg-blue-700"><i class="fas fa-print mr-2"></i> Cetak PDF / Print</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let memberCount = 0;
+
+    // Fungsi tambah baris keluarga
+    function addFamilyMember() {
+        memberCount++;
+        const tbody = document.getElementById('familyTbody');
+        const tr = document.createElement('tr');
+        tr.className = "border-b hover:bg-blue-50 transition";
+        tr.innerHTML = `
+            <td class="p-2 text-center font-medium">${memberCount}</td>
+            <td class="p-2"><input type="text" name="m_nama[]" class="border p-1 w-full min-w-[150px]" required></td>
+            <td class="p-2 text-center">
+                <select name="m_nik_sama[]" class="border p-1 w-full"><option value="Ya">Ya</option><option value="Tidak">Tidak</option></select>
+            </td>
+            <td class="p-2">
+                <select name="m_hubungan[]" class="border p-1 w-full min-w-[120px]" required>
+                    <option value="Kepala Keluarga">Kepala Keluarga</option>
+                    <option value="Istri/Suami">Istri/Suami</option>
+                    <option value="Anak">Anak</option>
+                    <option value="Famili Lain">Famili Lain</option>
+                </select>
+            </td>
+            <td class="p-2">
+                <select name="m_sekolah[]" class="border p-1 w-full min-w-[150px]" required>
+                    <option value="">--Pilih--</option>
+                    <option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option>
+                    <option value="SD/Sederajat">SD/Sederajat</option>
+                    <option value="SMP/Sederajat">SMP/Sederajat</option>
+                    <option value="SMA/Sederajat">SMA/Sederajat</option>
+                    <option value="Perguruan Tinggi">Perguruan Tinggi</option>
+                    <option value="Lulus/Selesai">Lulus/Selesai</option>
+                </select>
+            </td>
+            <td class="p-2">
+                <select name="m_ijazah[]" class="border p-1 w-full min-w-[120px]">
+                    <option value="Tidak Punya">Tidak Punya</option>
+                    <option value="SD">SD</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                    <option value="Diploma">Diploma</option>
+                    <option value="Sarjana">Sarjana</option>
+                </select>
+            </td>
+            <td class="p-2 text-center">
+                <select name="m_bekerja[]" class="border p-1 w-full"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select>
+            </td>
+            <td class="p-2">
+                <input type="number" name="m_pendapatan[]" class="border p-1 w-full min-w-[100px]" placeholder="Rp...">
+            </td>
+            <td class="p-2">
+                <input type="text" name="m_kesehatan[]" class="border p-1 w-full min-w-[150px]" placeholder="Sehat/Hamil/Sakit...">
+            </td>
+            <td class="p-2 text-center">
+                <button type="button" onclick="removeMember(this)" class="bg-red-500 text-white p-1 rounded hover:bg-red-600"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+        updateMemberNumbers();
+    }
+
+    function removeMember(btn) {
+        btn.closest('tr').remove();
+        updateMemberNumbers();
+    }
+
+    function updateMemberNumbers() {
+        const rows = document.querySelectorAll('#familyTbody tr');
+        memberCount = rows.length;
+        rows.forEach((row, index) => {
+            row.querySelector('td:first-child').innerText = index + 1;
+        });
+        
+        // Memperbarui input jumlah anggota jika ada
+        const jmlAnggotaInput = document.querySelector('input[name="jml_anggota"]');
+        if(jmlAnggotaInput) {
+            jmlAnggotaInput.value = memberCount;
+        }
+    }
+
+    function toggleUsaha(isPunya) {
+        const details = document.getElementById('usahaDetails');
+        if (isPunya) {
+            details.classList.remove('hidden');
+        } else {
+            details.classList.add('hidden');
+        }
+    }
+
+    function toggleKeluargaLain(val) {
+        const input = document.getElementById('inputJmlJiwa');
+        if (val === 'Ya') {
+            input.classList.remove('hidden');
+            input.required = true;
+        } else {
+            input.classList.add('hidden');
+            input.required = false;
+        }
+    }
+
+    function toggleListrik(isPLNMeteran) {
+        const details = document.getElementById('listrikDetails');
+        if (isPLNMeteran) {
+            details.classList.remove('hidden');
+        } else {
+            details.classList.add('hidden');
+        }
+    }
+
+    function toggleMotorPrice(val) {
+        const container = document.getElementById('motorPriceContainer');
+        if (parseInt(val) > 0) {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+        }
+    }
+
+    function alertBox(message) {
+       // Kustom message box pengganti alert() bawaan
+       const msgBox = document.createElement('div');
+       msgBox.style.position = 'fixed';
+       msgBox.style.top = '20px';
+       msgBox.style.left = '50%';
+       msgBox.style.transform = 'translateX(-50%)';
+       msgBox.style.backgroundColor = '#f44336';
+       msgBox.style.color = 'white';
+       msgBox.style.padding = '15px';
+       msgBox.style.borderRadius = '5px';
+       msgBox.style.zIndex = '9999';
+       msgBox.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+       msgBox.innerText = message;
+       
+       document.body.appendChild(msgBox);
+       
+       setTimeout(() => {
+           msgBox.remove();
+       }, 4000);
+    }
+
+    document.getElementById('dtsenForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if(memberCount === 0) {
+            alertBox("Mohon tambahkan minimal 1 anggota keluarga (Kepala Keluarga).");
+            return;
+        }
+
+        const formData = new FormData(this);
+        let summaryHTML = '';
+
+        const formatRp = (angka) => {
+            if(!angka || angka === "0") return '-';
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
+        };
+
+        // --- A. Keterangan Individu & Keluarga ---
+        summaryHTML += `<h3 class="font-bold border-b bg-gray-100 p-1 mt-2 text-left text-sm uppercase">A. Keterangan Individu & Keluarga</h3>`;
+        summaryHTML += `<table class="w-full mb-3 text-left text-xs align-top">
+            <tr>
+                <td class="w-1/4 py-1 text-gray-600">Nama Kepala Keluarga</td><td class="w-1/4 py-1">: <b>${formData.get('nama_kk')}</b></td>
+                <td class="w-1/4 py-1 text-gray-600">No. KK</td><td class="w-1/4 py-1">: ${formData.get('no_kk')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">Jml Anggota Keluarga</td><td class="py-1">: ${formData.get('jml_anggota')} Orang</td>
+                <td class="py-1 text-gray-600">No. HP/WA</td><td class="py-1">: ${formData.get('no_hp')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">Alamat Lengkap</td>
+                <td colspan="3" class="py-1">: ${formData.get('alamat')} RT ${formData.get('rt')} RW ${formData.get('rw')}, ${formData.get('kelurahan')}, ${formData.get('kecamatan')}</td>
+            </tr>
+        </table>`;
+
+        // Daftar Anggota
+        summaryHTML += `<p class="font-semibold mb-1 text-left text-xs">Daftar Anggota Keluarga:</p>`;
+        summaryHTML += `<table class="w-full border-collapse border text-xs mb-3 text-left">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="border p-1">Nama</th>
+                    <th class="border p-1">Hubungan</th>
+                    <th class="border p-1">NIK Sesuai?</th>
+                    <th class="border p-1">Sekolah</th>
+                    <th class="border p-1">Ijazah</th>
+                    <th class="border p-1">Bekerja?</th>
+                    <th class="border p-1">Pendapatan</th>
+                    <th class="border p-1">Kesehatan</th>
+                </tr>
+            </thead><tbody>`;
+        
+        const nama = formData.getAll('m_nama[]');
+        const hubungan = formData.getAll('m_hubungan[]');
+        const nik_sama = formData.getAll('m_nik_sama[]');
+        const sekolah = formData.getAll('m_sekolah[]');
+        const ijazah = formData.getAll('m_ijazah[]');
+        const bekerja = formData.getAll('m_bekerja[]');
+        const pendapatan = formData.getAll('m_pendapatan[]');
+        const kesehatan = formData.getAll('m_kesehatan[]');
+        
+        for(let i=0; i < nama.length; i++){
+            summaryHTML += `<tr>
+                <td class="border p-1">${nama[i]}</td>
+                <td class="border p-1">${hubungan[i]}</td>
+                <td class="border p-1">${nik_sama[i]}</td>
+                <td class="border p-1">${sekolah[i]}</td>
+                <td class="border p-1">${ijazah[i]}</td>
+                <td class="border p-1">${bekerja[i]}</td>
+                <td class="border p-1">${formatRp(pendapatan[i])}</td>
+                <td class="border p-1">${kesehatan[i] || '-'}</td>
+            </tr>`;
+        }
+        summaryHTML += `</tbody></table>`;
+
+        // --- B. Kepemilikan Usaha ---
+        const punyaUsaha = formData.get('punya_usaha');
+        summaryHTML += `<h3 class="font-bold border-b bg-gray-100 p-1 mt-2 text-left text-sm uppercase">B. Kepemilikan Usaha</h3>`;
+        summaryHTML += `<table class="w-full mb-3 text-left text-xs align-top">
+            <tr><td class="w-1/4 py-1 text-gray-600">Apakah Memiliki Usaha?</td><td colspan="3">: <b>${punyaUsaha}</b></td></tr>`;
+        if (punyaUsaha === 'Ya') {
+            summaryHTML += `<tr>
+                <td class="w-1/4 py-1 text-gray-600">Jumlah Usaha</td><td class="w-1/4 py-1">: ${formData.get('jml_usaha')}</td>
+                <td class="w-1/4 py-1 text-gray-600">Jenis Usaha</td><td class="w-1/4 py-1">: ${formData.get('jenis_usaha')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">Omset/Bulan</td><td class="py-1">: ${formatRp(formData.get('omset_usaha'))}</td>
+                <td class="py-1 text-gray-600">Pekerja (Dibayar/Tdk)</td><td class="py-1">: ${formData.get('pekerja_dibayar') || '0'} / ${formData.get('pekerja_tdk_dibayar') || '0'} Orang</td>
+            </tr>`;
+        }
+        summaryHTML += `</table>`;
+
+        // --- C. Perumahan & Lingkungan ---
+        summaryHTML += `<h3 class="font-bold border-b bg-gray-100 p-1 mt-2 text-left text-sm uppercase">C. Keterangan Perumahan & Lingkungan</h3>`;
+        summaryHTML += `<table class="w-full mb-3 text-left text-xs align-top">
+            <tr>
+                <td class="w-1/4 py-1 text-gray-600">1. Jenis Bangunan</td><td class="w-1/4 py-1">: ${formData.get('c_jenis_bangunan')}</td>
+                <td class="w-1/4 py-1 text-gray-600">9. Jenis Atap</td><td class="w-1/4 py-1">: ${formData.get('c_jenis_atap')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">2. Keluarga Lain Tinggal?</td><td class="py-1">: ${formData.get('c_keluarga_lain')} ${formData.get('c_keluarga_lain')==='Ya' ? '('+formData.get('c_jml_jiwa_lain')+' Jiwa)' : ''}</td>
+                <td class="py-1 text-gray-600">10. Kondisi Atap</td><td class="py-1">: ${formData.get('c_kondisi_atap')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">3. Status Milik Bangunan</td><td class="py-1">: ${formData.get('c_status_milik')}</td>
+                <td class="py-1 text-gray-600">11. Fasilitas BAB / Kloset</td><td class="py-1">: ${formData.get('c_fasilitas_bab')} / ${formData.get('c_jenis_kloset')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">4. Luas Lantai / Biaya Sewa</td><td class="py-1">: ${formData.get('c_luas_lantai')} m² / ${formatRp(formData.get('c_biaya_sewa'))}</td>
+                <td class="py-1 text-gray-600">12. Pembuangan Tinja</td><td class="py-1">: ${formData.get('c_buang_tinja')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">5. Jenis Lantai</td><td class="py-1">: ${formData.get('c_jenis_lantai')}</td>
+                <td class="py-1 text-gray-600">13. Bahan Bakar Masak</td><td class="py-1">: ${formData.get('c_bb_masak')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">6. Kondisi Lantai</td><td class="py-1">: ${formData.get('c_kondisi_lantai')}</td>
+                <td class="py-1 text-gray-600">14. Sumber Air Minum</td><td class="py-1">: ${formData.get('c_sumber_air')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">7. Jenis Dinding</td><td class="py-1">: ${formData.get('c_jenis_dinding')}</td>
+                <td class="py-1 text-gray-600">15. Jarak Limbah</td><td class="py-1">: ${formData.get('c_jarak_limbah')}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">8. Kondisi Dinding</td><td class="py-1">: ${formData.get('c_kondisi_dinding')}</td>
+                <td class="py-1 text-gray-600">16. Sumber Listrik</td><td class="py-1">: ${formData.get('c_sumber_listrik')}</td>
+            </tr>
+            ${formData.get('c_sumber_listrik') === 'PLN dengan meteran' ? 
+            `<tr>
+                <td class="py-1 text-gray-600">Info Listrik</td>
+                <td colspan="3" class="py-1">: Pelanggan: ${formData.get('c_listrik_pelanggan')} | Meteran: ${formData.get('c_listrik_meteran')} | Daya: ${formData.get('c_listrik_daya')} VA</td>
+            </tr>` : ''}
+        </table>`;
+
+        // --- D. Pengeluaran & Pendapatan ---
+        summaryHTML += `<h3 class="font-bold border-b bg-gray-100 p-1 mt-2 text-left text-sm uppercase">D. Pengeluaran & Pendapatan Rata-Rata</h3>`;
+        summaryHTML += `<table class="w-full mb-3 text-left text-xs align-top">
+            <tr>
+                <td class="w-1/4 py-1 text-gray-600 font-bold" colspan="2">Pengeluaran:</td>
+                <td class="w-1/4 py-1 text-gray-600 font-bold" colspan="2">Pendapatan:</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">1. Listrik / Bln</td><td class="py-1">: ${formatRp(formData.get('d_pengeluaran_listrik'))}</td>
+                <td class="py-1 text-gray-600">7. Pekerjaan/Gaji</td><td class="py-1">: ${formatRp(formData.get('d_pendapatan_kerja'))}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">2. Pulsa / Bln</td><td class="py-1">: ${formatRp(formData.get('d_pengeluaran_pulsa'))}</td>
+                <td class="py-1 text-gray-600">8. Usaha</td><td class="py-1">: ${formatRp(formData.get('d_pendapatan_usaha'))}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">3. Internet / Bln</td><td class="py-1">: ${formatRp(formData.get('d_pengeluaran_internet'))}</td>
+                <td class="py-1 text-gray-600">9. Lainnya</td><td class="py-1">: ${formatRp(formData.get('d_pendapatan_lain'))}</td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">4. Makanan / Mgg</td><td class="py-1">: ${formatRp(formData.get('d_pengeluaran_makan'))}</td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">5. Non-Makanan / Bln</td><td class="py-1">: ${formatRp(formData.get('d_pengeluaran_nonmakan_bln'))}</td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td class="py-1 text-gray-600">6. Non-Makanan / Thn</td><td class="py-1">: ${formatRp(formData.get('d_pengeluaran_nonmakan_thn'))}</td>
+                <td colspan="2"></td>
+            </tr>
+        </table>`;
+
+        // --- E. Aset & Ternak ---
+        summaryHTML += `<h3 class="font-bold border-b bg-gray-100 p-1 mt-2 text-left text-sm uppercase">E. Aset & Ternak</h3>`;
+        
+        let asetList = [];
+        const addToAset = (label, val) => { if(val && val !== '0' && val !== 'Tidak') asetList.push(`${label}: ${val}`); };
+        
+        addToAset('Gas ≥5.5kg', formData.get('e_gas'));
+        addToAset('AC', formData.get('e_ac'));
+        addToAset('Telp Rumah', formData.get('e_telp'));
+        addToAset('Emas ≥10g', formData.get('e_emas')==='Ya'?'Ya':'');
+        
+        // Logika custom untuk Harga Motor
+        let motorVal = formData.get('e_motor');
+        if (motorVal && motorVal !== '0') {
+            let motorHarga = formData.get('e_motor_harga');
+            if (motorHarga && motorHarga !== '0') {
+                motorVal += ` (Perkiraan Harga: ${formatRp(motorHarga)})`;
+            }
+            addToAset('Motor', motorVal);
+        }
+
+        addToAset('Mobil', formData.get('e_mobil'));
+        addToAset('Kapal/Perahu Motor', formData.get('e_kapal'));
+        addToAset('Kulkas', formData.get('e_kulkas'));
+        addToAset('Water Heater', formData.get('e_water_heater'));
+        addToAset('TV Datar', formData.get('e_tv'));
+        addToAset('Laptop', formData.get('e_laptop'));
+        addToAset('Sepeda', formData.get('e_sepeda'));
+        addToAset('Perahu', formData.get('e_perahu'));
+        addToAset('HP/Smartphone', formData.get('e_hp'));
+
+        let asetStr = asetList.length > 0 ? asetList.join(', ') : 'Tidak ada aset bergerak dicatat.';
+
+        summaryHTML += `<div class="mb-2 text-xs">
+            <p class="mb-1"><b>I. Aset Bergerak:</b> ${asetStr}</p>
+            <p class="mb-1"><b>II. Aset Tidak Bergerak:</b> Luas Sawah: ${formData.get('e_punya_sawah')==='Ya' ? formData.get('e_luas_sawah')+' m2/unit' : 'Tidak Punya'} | Rumah Lain: ${formData.get('e_punya_rumahlain')==='Ya' ? formData.get('e_jml_rumahlain')+' Unit' : 'Tidak Punya'}</p>
+            <p class="mb-1"><b>III. Ternak (Ekor):</b> Sapi (${formData.get('t_sapi')}), Kuda (${formData.get('t_kuda')}), Babi (${formData.get('t_babi')}), Kerbau (${formData.get('t_kerbau')}), Kambing/Domba (${formData.get('t_kambing')})</p>
+        <div class="mb-2 text-xs">
+            <p class="mb-1"><b>I. Aset Bergerak:</b> ${asetStr}</p>
+            <p class="mb-1"><b>II. Aset Tidak Bergerak:</b> Luas Sawah: ${formData.get('e_punya_sawah')==='Ya' ? formData.get('e_luas_sawah')+' m2/unit' : 'Tidak Punya'} | Rumah Lain: ${formData.get('e_punya_rumahlain')==='Ya' ? formData.get('e_jml_rumahlain')+' Unit' : 'Tidak Punya'}</p>
+            <p class="mb-1"><b>III. Ternak (Ekor):</b> Sapi (${formData.get('t_sapi')}), Kuda (${formData.get('t_kuda')}), Babi (${formData.get('t_babi')}), Kerbau (${formData.get('t_kerbau')}), Kambing/Domba (${formData.get('t_kambing')})</p>
+        </div>`;
+
+        // Inject ke View
+        document.getElementById('summaryContent').innerHTML = summaryHTML;
+        
+        // Ganti Layar
+        document.getElementById('dtsenForm').classList.add('hidden');
+        document.getElementById('summaryView').classList.remove('hidden');
+        window.scrollTo(0,0);
+    });
+
+    function closeSummary() {
+        document.getElementById('summaryView').classList.add('hidden');
+        document.getElementById('dtsenForm').classList.remove('hidden');
+    }
+
+    // Fungsi otomatis generate pesan WA
+    function sendToWhatsApp() {
+        const form = document.getElementById('dtsenForm');
+        const formData = new FormData(form);
+        
+        let text = `*HASIL KUISIONER DAN PEMBAHARUAN DTSEN*\n\n`;
+        
+        text += `*Identitas Keluarga:*\n`;
+        text += `- Nama KK: ${formData.get('nama_kk')}\n`;
+        text += `- No. KK: ${formData.get('no_kk')}\n`;
+        text += `- No. HP: ${formData.get('no_hp')}\n`;
+        text += `- Alamat: ${formData.get('alamat')} RT ${formData.get('rt')}/RW ${formData.get('rw')}, ${formData.get('kelurahan')}\n`;
+        text += `- Jml Anggota: ${formData.get('jml_anggota')} Orang\n\n`;
+        
+        text += `*Kepemilikan Usaha:*\n`;
+        text += `- Punya Usaha: ${formData.get('punya_usaha')}\n`;
+        if (formData.get('punya_usaha') === 'Ya') {
+            text += `- Jml Usaha: ${formData.get('jml_usaha')}\n`;
+            text += `- Jenis: ${formData.get('jenis_usaha')}\n`;
+        }
+        text += `\n`;
+        
+        text += `*(Data rincian lebih lengkap untuk SIKS-NG akan dilampirkan via PDF oleh petugas)*\n\n`;
+        text += `Mohon untuk dicek. Terima kasih.`;
+
+        // Format teks agar aman dibaca oleh sistem URL (spasi jadi %20, dst)
+        const encodedText = encodeURIComponent(text);
+        
+        // Nomor tujuan (0 diganti 62 untuk kode negara)
+        const waNumber = "6285177441374"; 
+        
+        // Buat link WA
+        const waUrl = `https://wa.me/${waNumber}?text=${encodedText}`;
+        
+        // Buka tab WhatsApp
+        window.open(waUrl, '_blank');
+    }
+
+    // Inisialisasi: Berikan 1 baris kosong otomatis saat form pertama kali dimuat
+    window.onload = function() {
+        if(memberCount === 0) {
+            addFamilyMember();
+        }
+    };
+</script>
+</body>
+</html>
